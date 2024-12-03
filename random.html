@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机干员选择器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F0F0F0;
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #generate-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: #FFF;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        #generate-btn:hover {
+            background-color: #555;
+        }
+
+        .grid {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background-color: #FFF;
+            padding: 5px;
+            border: 1px solid goldenrod;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s ease-out forwards;
+            min-height: 120px;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .card:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+
+        .card:nth-child(6) {
+            animation-delay: 0.5s;
+        }
+
+        .card:nth-child(7) {
+            animation-delay: 0.6s;
+        }
+
+        .card:nth-child(8) {
+            animation-delay: 0.7s;
+        }
+
+        .card:nth-child(9) {
+            animation-delay: 0.8s;
+        }
+
+        .card:nth-child(10) {
+            animation-delay: 0.9s;
+        }
+
+        .card:nth-child(11) {
+            animation-delay: 1.0s;
+        }
+
+        .card:nth-child(12) {
+            animation-delay: 1.1s;
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .operator-image {
+            width: 80px;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .operator-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        #settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            float: right;
+        }
+
+        .close-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .operator-image-wrapper {
+            margin: 10px;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .operator-image-wrapper:hover {
+            transform: scale(1.1);
+        }
+
+        /* 设置按钮位置 */
+        #settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        #settings-btn:hover {
+            background-color: #555;
+        }
+
+        .operator-name-settings {
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .operator-name-settings.unselected {
+            color: goldenrod;
+        }
+
+        .operator-image-settings {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: filter 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            .operator-image {
+                width: 60px;
+                height: 120px;
+            }
+
+            .operator-name {
+                font-size: 12px;
+            }
+
+            #settings-btn {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .operator-image-settings {
+                width: 60px;
+                height: 60px;
+            }
+
+            .operator-name-settings {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 18px;
+            }
+
+            .operator-image {
+                width: 50px;
+                height: 100px;
+            }
+
+            .operator-name {
+                font-size: 10px;
+            }
+
+            #settings-btn {
+                top: 10px;
+                right: 10px;
+                padding: 6px 10px;
+            }
+
+            .operator-image-wrapper {
+                margin: 5px;
+            }
+
+            .operator-image-settings {
+                width: 50px;
+                height: 50px;
+            }
+
+            .operator-name-settings {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>随机干员选择器</h1>
+    <div id="grid" class="grid"></div>
+    <button id="generate-btn">生成随机干员</button>
+    <button id="settings-btn">设置</button>
+
+    <!-- 设置页面弹出窗口 -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" id="close-btn">关闭设置</button>
+            <h2>选择不希望出现的干员</h2>
+            <div id="operator-settings"></div>
+        </div>
+    </div>
+
+    <script>
+        const operatorList = [
+            "能天使", "推进之王", "伊芙利特", "艾雅法拉", "安洁莉娜", "闪灵", "夜莺", "星熊", "塞雷娅", "银灰",
+            "斯卡蒂", "陈", "黑", "赫拉格", "麦哲伦", "莫斯提马", "煌", "阿", "年", "刻俄柏", "风笛", "傀影",
+            "温蒂", "W", "早露", "铃兰", "棘刺", "森蚺", "史尔特尔", "瑕光", "泥岩", "迷迭香", "山", "空弦",
+            "嵯峨", "夕", "灰烬", "异客", "歌蕾蒂娅", "凯尔希", "浊心斯卡蒂", "卡涅利安", "帕拉斯", "水月",
+            "假日威龙陈", "琴柳", "远牙", "焰尾", "耀骑士临光", "灵知", "老鲤", "令", "澄闪", "菲亚梅塔",
+            "号角", "流明", "艾丽妮", "归溟幽灵鲨", "黑键", "多萝西", "鸿雪", "百炼嘉维尔", "玛恩纳", "白铁",
+            "伺夜", "斥罪", "缄默德克萨斯", "焰影苇草", "林", "重岳", "仇白", "麒麟R夜刀", "伊内丝", "淬羽赫默",
+            "霍尔海雅", "缪尔赛思", "圣约送葬人", "提丰", "琳琅诗怀雅", "纯烬艾雅法拉", "涤火杰西卡", "赫德雷",
+            "止颂", "薇薇安娜", "塑心", "锏", "莱伊", "左乐", "黍", "艾拉", "阿斯卡纶", "魔王", "逻各斯",
+            "维什戴尔", "乌尔比安", "妮芙", "娜仁图亚", "佩佩", "玛露西尔", "维娜·维多利亚", "弑君者", "忍冬",
+            "荒芜拉普兰德"
+        ];
+
+        let excludedOperators = [];  // 不希望出现的干员列表
+
+        const generateRandomOperators = () => {
+            const operators = [...operatorList];
+            const selected = [];
+            while (selected.length < 12) {
+                const randomIndex = Math.floor(Math.random() * operators.length);
+                const operator = operators.splice(randomIndex, 1)[0];
+                if (!excludedOperators.includes(operator)) {
+                    selected.push(operator);
+                }
+            }
+            return selected;
+        };
+
+        const displayOperators = () => {
+            const grid = document.getElementById("grid");
+            grid.innerHTML = "";
+            const randomOperators = generateRandomOperators();
+            randomOperators.forEach(operator => {
+                const card = document.createElement("div");
+                card.className = "card";
+
+                const image = document.createElement("img");
+                image.className = "operator-image";
+                image.src = `./pic/${operator}.png`;
+                image.alt = operator;
+
+                const name = document.createElement("div");
+                name.className = "operator-name";
+                name.textContent = operator;
+
+                card.appendChild(image);
+                card.appendChild(name);
+                grid.appendChild(card);
+            });
+
+            grid.style.display = "grid";
+            document.getElementById("generate-btn").textContent = "再Roll一次";
+        };
+
+        const openSettings = () => {
+            const settingsModal = document.getElementById("settings-modal");
+            const operatorSettings = document.getElementById("operator-settings");
+            operatorSettings.innerHTML = "";
+
+            operatorList.forEach(operator => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "operator-image-wrapper";
+
+                const image = document.createElement("img");
+                image.className = "operator-image-settings";
+                image.src = `./pic/${operator}.png`;
+                image.alt = operator;
+                image.style.filter = excludedOperators.includes(operator) ? "grayscale(100%)" : "none";
+
+                const name = document.createElement("div");
+                name.className = `operator-name-settings ${excludedOperators.includes(operator) ? "" : "unselected"}`;
+                name.textContent = operator;
+
+                wrapper.appendChild(image);
+                wrapper.appendChild(name);
+
+                wrapper.addEventListener("click", () => {
+                    if (excludedOperators.includes(operator)) {
+                        excludedOperators = excludedOperators.filter(op => op !== operator);
+                    } else {
+                        excludedOperators.push(operator);
+                    }
+                    image.style.filter = excludedOperators.includes(operator) ? "grayscale(100%)" : "none";
+                    name.classList.toggle("unselected", !excludedOperators.includes(operator));
+                });
+
+                operatorSettings.appendChild(wrapper);
+            });
+
+            settingsModal.style.display = "flex";
+        };
+
+        const closeSettings = () => {
+            document.getElementById("settings-modal").style.display = "none";
+        };
+
+        document.getElementById("settings-btn").addEventListener("click", openSettings);
+        document.getElementById("close-btn").addEventListener("click", closeSettings);
+        document.getElementById("generate-btn").addEventListener("click", displayOperators);
+    </script>
+</body>
+
+</html>
